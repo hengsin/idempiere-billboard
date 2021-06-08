@@ -27,18 +27,13 @@ package org.idempiere.zk.billboard.chart;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
-import java.util.Properties;
 
-import org.adempiere.util.ServerContext;
 import org.adempiere.webui.apps.AEnv;
-import org.adempiere.webui.apps.DesktopRunnable;
 import org.adempiere.webui.apps.graph.IChartRendererService;
 import org.adempiere.webui.apps.graph.model.ChartModel;
 import org.adempiere.webui.apps.graph.model.GoalModel;
 import org.adempiere.webui.apps.graph.model.IndicatorModel;
 import org.adempiere.webui.component.Label;
-import org.adempiere.webui.session.SessionContextListener;
-import org.compiere.Adempiere;
 import org.compiere.model.MChart;
 import org.compiere.model.MQuery;
 import org.compiere.model.MSysConfig;
@@ -47,11 +42,9 @@ import org.idempiere.zk.billboard.Billboard;
 import org.zkoss.json.JSONObject;
 import org.zkoss.zk.au.out.AuScript;
 import org.zkoss.zk.ui.Component;
-import org.zkoss.zk.ui.Desktop;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.event.Event;
 import org.zkoss.zk.ui.event.EventListener;
-import org.zkoss.zk.ui.event.Events;
 import org.zkoss.zk.ui.util.Clients;
 import org.zkoss.zul.CategoryModel;
 import org.zkoss.zul.Div;
@@ -75,30 +68,10 @@ public class ChartRendererServiceImpl implements IChartRendererService {
 	 */
 	@Override
 	public boolean renderPerformanceIndicator(Component parent, int chartWidth, int chartHeight, IndicatorModel model) {
-		Desktop desktop = parent.getDesktop() != null ? parent.getDesktop() : AEnv.getDesktop();
-		final Properties ctx = (Properties)desktop.getSession().getAttribute(SessionContextListener.SESSION_CTX);
-		DesktopRunnable runnable = new DesktopRunnable(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					ServerContext.setCurrentInstance(ctx);
-					PerformanceGraphBuilder builder = new PerformanceGraphBuilder();
-					Billboard billboard = builder.createIndicatorChart(model);
-					billboard.setStyle("width: "+chartWidth+"px;height: "+chartHeight+"px;");
-					AEnv.executeAsyncDesktopTask(new Runnable() {
-						@Override
-						public void run() {
-							parent.appendChild(billboard);
-							if (parent instanceof EventListener<?>)
-								billboard.addEventListener(Events.ON_CLICK, (EventListener<?>) parent);
-						}						
-					});
-				} finally {
-					ServerContext.dispose();
-				}
-			}
-		}, desktop);
-		Adempiere.getThreadPoolExecutor().submit(runnable);
+		PerformanceGraphBuilder builder = new PerformanceGraphBuilder();
+		Billboard billboard = builder.createIndicatorChart(model);
+		billboard.setStyle("width: "+chartWidth+"px;height: "+chartHeight+"px;");
+		parent.appendChild(billboard);
 		
 		return true;
 	}
@@ -106,27 +79,9 @@ public class ChartRendererServiceImpl implements IChartRendererService {
 	@Override
 	public boolean renderPerformanceGraph(Component parent, int chartWidth, int chartHeight,
 			GoalModel goalModel) {
-		Desktop desktop = parent.getDesktop() != null ? parent.getDesktop() : AEnv.getDesktop();
-		final Properties ctx = (Properties)desktop.getSession().getAttribute(SessionContextListener.SESSION_CTX);
-		DesktopRunnable runnable = new DesktopRunnable(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					ServerContext.setCurrentInstance(ctx);
-					PerformanceGraphBuilder builder = new PerformanceGraphBuilder();
-					Billboard billboard = builder.createPerformanceChart(goalModel, chartWidth, chartHeight);
-					AEnv.executeAsyncDesktopTask(new Runnable() {
-						@Override
-						public void run() {
-							parent.appendChild(billboard);
-						}						
-					});
-				} finally {
-					ServerContext.dispose();
-				}
-			}			
-		}, desktop);			
-		Adempiere.getThreadPoolExecutor().submit(runnable);
+		PerformanceGraphBuilder builder = new PerformanceGraphBuilder();
+		Billboard billboard = builder.createPerformanceChart(goalModel, chartWidth, chartHeight);
+		parent.appendChild(billboard);
 		
 		return true;
 	}
@@ -134,28 +89,10 @@ public class ChartRendererServiceImpl implements IChartRendererService {
 	@Override
 	public boolean renderChart(Component parent, int width, int height,
 			ChartModel chartModel) {
-		Desktop desktop = parent.getDesktop() != null ? parent.getDesktop() : AEnv.getDesktop();
-		final Properties ctx = (Properties)desktop.getSession().getAttribute(SessionContextListener.SESSION_CTX);
-		DesktopRunnable runnable = new DesktopRunnable(new Runnable() {			
-			@Override
-			public void run() {
-				try {
-					ServerContext.setCurrentInstance(ctx);
-					ChartBuilder builder = new ChartBuilder(chartModel.chart);
-					Billboard billboard = builder.createChart();
-					billboard.setStyle("width: " + width + "px;" + " height: " + height + "px;");
-					AEnv.executeAsyncDesktopTask(new Runnable() {					
-						@Override
-						public void run() {
-							updateUI(parent, chartModel, builder, billboard, width, height);
-						}
-					});
-				} finally {
-					ServerContext.dispose();
-				}
-			}
-		}, desktop);
-		Adempiere.getThreadPoolExecutor().submit(runnable);
+		ChartBuilder builder = new ChartBuilder(chartModel.chart);
+		Billboard billboard = builder.createChart();
+		billboard.setStyle("width: " + width + "px;" + " height: " + height + "px;");
+		updateUI(parent, chartModel, builder, billboard, width, height);
 		
 		return true;
 	}
