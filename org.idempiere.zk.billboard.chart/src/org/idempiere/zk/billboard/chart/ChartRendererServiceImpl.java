@@ -88,10 +88,12 @@ public class ChartRendererServiceImpl implements IChartRendererService {
 
 	@Override
 	public boolean renderChart(Component parent, int width, int height,
-			ChartModel chartModel) {
+			ChartModel chartModel, boolean showTitle) {
 		ChartBuilder builder = new ChartBuilder(chartModel.chart);
 		Billboard billboard = builder.createChart();
 		billboard.setStyle("width: " + width + "px;" + " height: " + height + "px;");
+		if (!showTitle)
+			billboard.setTitle("");
 		updateUI(parent, chartModel, builder, billboard, width, height);
 		
 		return true;
