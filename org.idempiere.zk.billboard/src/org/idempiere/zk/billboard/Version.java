@@ -32,5 +32,5 @@ package org.idempiere.zk.billboard;
 public class Version {
 	/** Returns the version UID.
 	 */
-	public static final String UID = "3.5.1.202200901";
+	public static final String UID = "3.5.1.20220905";
 }

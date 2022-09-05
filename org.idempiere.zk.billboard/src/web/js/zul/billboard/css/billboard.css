@@ -150,12 +150,12 @@
   .bb-tooltip th {
     background-color: #aaa;
     font-size: 14px;
-    padding: 2px 5px;
-    text-align: left;
+    padding: 2px 5px !important;
+    text-align: left !important;
     color: #FFF; }
   .bb-tooltip td {
     font-size: 13px;
-    padding: 3px 6px;
+    padding: 3px 6px !important;
     background-color: #fff;
     border-left: 1px dotted #999; }
     .bb-tooltip td > span, .bb-tooltip td > svg {
